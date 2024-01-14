@@ -1,8 +1,5 @@
-from neo4j import GraphDatabase
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
+from src.models.molecule import Molecule
+from src.models.reaction import Reaction
 
 
 class Database:
@@ -12,83 +9,57 @@ class Database:
     def close(self):
         self._driver.close()
 
-    def create_molecule_node(self, name, smiles):
+    def create_node(self, entity):
         with self._driver.session() as session:
-            return session.execute_write(self._create_molecule_node, name, smiles)
+            return session.execute_write(entity.create_node)
 
-    def create_reaction_node(self, reaction_name):
+    def create_relationships(self, reactant1, reactant2, product, reaction):
         with self._driver.session() as session:
-            return session.execute_write(self._create_single_reaction_node, reaction_name)
-
-    def create_reaction_relationships(self, reactant1, reactant2, product, reaction_name):
-        with self._driver.session() as session:
-            return session.execute_write(self._create_reaction_relationships, reactant1, reactant2, product,
-                                         reaction_name)
+            return session.execute_write(
+                self._create_reaction_relationships,
+                reactant1.to_dict(),
+                reactant2.to_dict(),
+                product.to_dict(),
+                reaction.to_dict(),
+            )
 
     @staticmethod
-    def _create_molecule_node(tx, name, smiles):
+    def _create_reaction_relationships(tx, reactant1, reactant2, product, reaction):
         query = (
-            "CREATE (m:Molecule {name: $name, smiles: $smiles}) "
-            "RETURN m"
-        )
-        result = tx.run(query, name=name, smiles=smiles)
-        return result.single()[0]
-
-    @staticmethod
-    def _create_reaction_node(tx, reaction_name):
-        query = (
-            "CREATE (r:Reaction {name: $reaction_name}) "
-            "RETURN r"
-        )
-        result = tx.run(query, reaction_name=reaction_name)
-        return result.single()[0]
-
-    @staticmethod
-    def _create_reaction_relationships(tx, reactant1, reactant2, product, reaction_name):
-        query = (
-            "MATCH (r1:Molecule {name: $reactant1}), "
-            "(r2:Molecule {name: $reactant2}), "
-            "(p:Molecule {name: $product}), "
+            "MATCH (r1:Molecule {name: $reactant1_name}), "
+            "(r2:Molecule {name: $reactant2_name}), "
+            "(p:Molecule {name: $product_name}), "
             "(reaction:Reaction {name: $reaction_name}) "
             "CREATE (r1)-[:REACTANT_OF]->(reaction), "
             "(r2)-[:REACTANT_OF]->(reaction), "
             "(reaction)-[:PRODUCT_OF]->(p)"
         )
-        tx.run(query, reactant1=reactant1, reactant2=reactant2,
-               product=product, reaction_name=reaction_name)
-
-    @staticmethod
-    def _create_single_reaction_node(tx, reaction_name):
-        query = (
-            "CREATE (r:Reaction {name: $reaction_name}) "
-            "RETURN r"
-        )
-        result = tx.run(query, reaction_name=reaction_name)
-        return result.single()[0]
+        tx.run(query, **reactant1, **reactant2, **product, **reaction)
 
 
 # Пример использования
-uri = os.getenv("NEO4J_URI")
-user = os.getenv("NEO4J_USER")
-password = os.getenv("NEO4J_PASSWORD")
+uri = "bolt://localhost:7687"
+user = "neo4j"
+password = "sdg71046"
 
 database = Database(uri, user, password)
 
-# Создать узел молекулы для этанола
-ethanol = database.create_molecule_node("Ethanol", "CCO")
+# Создать экземпляры классов молекул
+ethanol = Molecule("Ethanol", "CCO")
+acetic_acid = Molecule("Acetic Acid", "CC(=O)O")
+ether = Molecule("Ether", "CCOC")
 
-# Создать узел молекулы для уксусной кислоты
-acetic_acid = database.create_molecule_node("Acetic Acid", "CC(=O)O")
+# Создать экземпляр класса реакции
+ether_formation = Reaction("Ether Formation")
 
-# Создать узел реакции образования эфира между этанолом и уксусной кислотой
-ether_formation = database.create_reaction_node("Ether Formation")
-
-# Создать узел молекулы для эфира
-ether = database.create_molecule_node("Ether", "CCOC")
+# Создать узлы молекул и реакции в базе данных
+database.create_node(ethanol)
+database.create_node(acetic_acid)
+database.create_node(ether)
+database.create_node(ether_formation)
 
 # Установить связи между молекулами и реакцией
-database.create_reaction_relationships(
-    "Ethanol", "Acetic Acid", "Ether", "Ether Formation")
+database.create_relationships(ethanol, acetic_acid, ether, ether_formation)
 
 # Закрыть соединение с базой данных
 database.close()
