@@ -23,3 +23,5 @@ Werkzeug==2.2.2
 
 neo4j~=5.16.0
 setuptools~=68.2.0
+rdkit~=2023.9.4
+api~=0.0.7
