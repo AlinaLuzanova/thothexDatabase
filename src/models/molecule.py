@@ -8,7 +8,9 @@ class Molecule:
     def to_dict(self):
         return {
             "name_properties": self.name_properties,
-            "smiles": self.name_properties.get("SMILES", ""),  # Assuming SMILES is always present
+            "file_formats": self.file_formats,
+            "physical_properties": self.physical_properties,
+            "chemical_properties": self.chemical_properties,
         }
 
     def create_node(self, tx):
