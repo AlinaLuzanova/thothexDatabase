@@ -1,8 +1,16 @@
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
 import os
-from src.models.molecule import Molecule
-from src.models.reaction import Reaction
+
+from Backend.app.models.reaction import Reaction
+
+from Backend.app.models.molecule import Molecule
+
+load_dotenv()
+
+uri = os.getenv("NEO4J_URI")
+user = os.getenv("NEO4J_USER")
+password = os.getenv("NEO4J_PASSWORD")
 
 
 class Database:
@@ -37,14 +45,9 @@ class Database:
             "(r2)-[:REACTANT_OF]->(reaction), "
             "(reaction)-[:PRODUCT_OF]->(p)"
         )
-        tx.run(query, reactant1_name=reactant1["name"], reactant2_name=reactant2["name"], product_name=product["name"], reaction_name=reaction["name"])
+        tx.run(query, reactant1_name=reactant1["name"], reactant2_name=reactant2["name"], product_name=product["name"],
+               reaction_name=reaction["name"])
 
-
-load_dotenv()
-
-uri = os.getenv("NEO4J_URI")
-user = os.getenv("NEO4J_USER")
-password = os.getenv("NEO4J_PASSWORD")
 
 database = Database(uri, user, password)
 
