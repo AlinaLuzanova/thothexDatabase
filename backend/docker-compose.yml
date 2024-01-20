@@ -1,4 +1,4 @@
-# PROD
+# DEV
 version: "3"
 
 services:
@@ -18,11 +18,11 @@ services:
       - .env
   backend:
     build:
-      context: ./backend
-      dockerfile: docker/backend/Dockerfile
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/app:/backend/app
+      - ./app:/app
     env_file:
       - .env
