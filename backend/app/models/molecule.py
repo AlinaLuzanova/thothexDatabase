@@ -1,5 +1,7 @@
 class Molecule:
-    def __init__(self, name_properties, file_formats, physical_properties, chemical_properties):
+    def __init__(
+        self, name_properties, file_formats, physical_properties, chemical_properties
+    ):
         self.name_properties = name_properties
         self.file_formats = file_formats
         self.physical_properties = physical_properties
@@ -14,9 +16,7 @@ class Molecule:
         }
 
     def create_node(self, tx):
-        query = (
-            "CREATE (m:Molecule {name_properties: $name_properties, smiles: $smiles, file_formats: $file_formats, physical_properties: $physical_properties, chemical_properties: $chemical_properties})"
-        )
+        query = "CREATE (m:Molecule {name_properties: $name_properties, smiles: $smiles, file_formats: $file_formats, physical_properties: $physical_properties, chemical_properties: $chemical_properties})"
         result = tx.run(query, **self.to_dict())
         return result.single()[0]
 

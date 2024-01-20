@@ -20,8 +20,6 @@ pytz==2022.2.1
 six==1.16.0
 tomli==2.0.1
 Werkzeug==2.2.2
-
-neo4j~=5.16.0
 setuptools~=68.2.0
 rdkit~=2023.9.4
 api~=0.0.7

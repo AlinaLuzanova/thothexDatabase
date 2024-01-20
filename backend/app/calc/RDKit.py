@@ -1,6 +1,5 @@
 from rdkit import Chem
-from rdkit.Chem import AllChem
-from rdkit.Chem import Draw
+from rdkit.Chem import AllChem, Draw
 
 
 # Создание молекулы из SMILES
@@ -11,14 +10,14 @@ def create_molecule_from_smiles(smiles):
 # Сохранение молекулы в формате SMILES
 def save_molecule_to_smiles(molecule, filename):
     smiles = Chem.MolToSmiles(molecule)
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         file.write(smiles)
 
 
 # Сохранение молекулы в формате MOL
 def save_molecule_to_mol(molecule, filename):
     mol_block = Chem.MolToMolBlock(molecule)
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         file.write(mol_block)
 
 
@@ -40,7 +39,7 @@ def save_molecule_to_pdb(molecule, filename):
 # Сохранение молекулы в формате InChI
 def save_molecule_to_inchi(molecule, filename):
     inchi = Chem.MolToInchi(molecule)
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         file.write(inchi)
 
 
